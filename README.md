@@ -1,323 +1,384 @@
-# Movie Picture Pipeline
+# Movie Picture Pipeline - CI/CD Project
 
-This project implements a complete CI/CD pipeline for a full-stack movie application with a React frontend and Python Flask backend, deployed to AWS EKS using GitHub Actions.
+[![Frontend CI](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-ci.yaml/badge.svg)](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-ci.yaml)
+[![Backend CI](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-ci.yaml/badge.svg)](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-ci.yaml)
+[![Frontend CD](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-cd.yaml/badge.svg)](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-cd.yaml)
+[![Backend CD](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-cd.yaml/badge.svg)](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-cd.yaml)
 
-## Project Structure
+A complete CI/CD pipeline implementation for a full-stack movie application with React frontend and Flask backend, deployed to AWS EKS using GitHub Actions.
+
+## 🚀 Live Application
+
+- **Frontend Application**: http://aab205cf6bcf442019b39ed063809cc3-1168313768.us-east-1.elb.amazonaws.com
+- **Backend API**: http://aa9aa9f85052c445481fb7413c8b62a4-338532416.us-east-1.elb.amazonaws.com/movies
+
+## 📋 Project Overview
+
+This project demonstrates a complete DevOps CI/CD pipeline with:
+- ✅ Automated testing and linting on every pull request
+- ✅ Docker containerization
+- ✅ AWS ECR for container registry
+- ✅ Kubernetes deployment on AWS EKS
+- ✅ GitHub Actions for automation
+- ✅ Zero-downtime deployments
+
+## 🏗️ Architecture
 
 ```
-.
+GitHub Repository → GitHub Actions → Docker Build → AWS ECR → AWS EKS → LoadBalancer
+```
+
+### Technology Stack
+
+**Frontend:**
+- React 18.2
+- Node.js 18.14
+- ESLint for code quality
+- Jest for testing
+- Docker containerization
+
+**Backend:**
+- Python 3.10
+- Flask web framework
+- Pytest for testing
+- Flake8 for linting
+- Docker containerization
+
+**Infrastructure:**
+- AWS EKS (Kubernetes cluster: `my-cluster`)
+- AWS ECR (Container Registry)
+- AWS LoadBalancer
+- GitHub Actions for CI/CD
+
+## 📁 Project Structure
+
+```
+prj4-upd/
 ├── .github/
 │   └── workflows/
-│       ├── frontend-ci.yaml     # Frontend CI pipeline
-│       ├── backend-ci.yaml      # Backend CI pipeline
-│       ├── frontend-cd.yaml     # Frontend CD pipeline
-│       └── backend-cd.yaml      # Backend CD pipeline
-├── frontend/                     # React application
+│       ├── frontend-ci.yaml          # Frontend CI pipeline
+│       ├── backend-ci.yaml           # Backend CI pipeline
+│       ├── frontend-cd.yaml          # Frontend CD pipeline
+│       └── backend-cd.yaml           # Backend CD pipeline
+├── frontend/                          # React application
 │   ├── src/
-│   ├── k8s/                     # Kubernetes manifests
+│   ├── k8s/                          # Kubernetes manifests
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   └── kustomization.yaml
 │   ├── Dockerfile
 │   └── package.json
-├── backend/                      # Flask application
+├── backend/                           # Flask application
 │   ├── movies/
-│   ├── k8s/                     # Kubernetes manifests
+│   ├── k8s/                          # Kubernetes manifests
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   └── kustomization.yaml
 │   ├── Dockerfile
 │   └── Pipfile
 └── README.md
 ```
 
-## CI/CD Workflows
+## 🔄 CI/CD Workflows
 
-### 1. Frontend CI (frontend-ci.yaml)
-- **Triggers**: Pull requests to main, manual dispatch
-- **Jobs**:
-  - **Lint**: Runs ESLint on the codebase
-  - **Test**: Runs unit tests with coverage
-  - **Build**: Builds Docker image (runs after lint and test pass)
+### 1. Frontend Continuous Integration
+**Trigger:** Pull requests to main branch  
+**Workflow:** [frontend-ci.yaml](.github/workflows/frontend-ci.yaml)  
+**View Runs:** [Frontend CI Actions](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-ci.yaml)
 
-### 2. Backend CI (backend-ci.yaml)
-- **Triggers**: Pull requests to main, manual dispatch
-- **Jobs**:
-  - **Lint**: Runs flake8 linting
-  - **Test**: Runs pytest tests
-  - **Build**: Builds Docker image (runs after lint and test pass)
+**Jobs:**
+- **Lint** - Runs ESLint to check code quality
+- **Test** - Runs Jest tests with coverage
+- **Build** - Builds Docker image to verify no errors
 
-### 3. Frontend CD (frontend-cd.yaml)
-- **Triggers**: Push to main branch, manual dispatch
-- **Jobs**:
-  - **Lint**: Runs ESLint
-  - **Test**: Runs unit tests
-  - **Build**: 
-    - Builds Docker image with REACT_APP_MOVIE_API_URL environment variable
-    - Pushes to Amazon ECR
-    - Deploys to EKS cluster using kubectl and kustomize
+Jobs run in parallel: `lint` and `test` → then `build`
 
-### 4. Backend CD (backend-cd.yaml)
-- **Triggers**: Push to main branch, manual dispatch
-- **Jobs**:
-  - **Lint**: Runs flake8
-  - **Test**: Runs pytest
-  - **Build**: 
-    - Builds Docker image
-    - Pushes to Amazon ECR
-    - Deploys to EKS cluster using kubectl and kustomize
+### 2. Backend Continuous Integration
+**Trigger:** Pull requests to main branch  
+**Workflow:** [backend-ci.yaml](.github/workflows/backend-ci.yaml)  
+**View Runs:** [Backend CI Actions](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-ci.yaml)
 
-## Setup Instructions
+**Jobs:**
+- **Lint** - Runs Flake8 to check code quality
+- **Test** - Runs Pytest tests
+- **Build** - Builds Docker image to verify no errors
 
-### Prerequisites
-1. AWS Account with EKS cluster named `cluster`
-2. GitHub repository
-3. ECR repositories created for `frontend` and `backend`
+Jobs run in parallel: `lint` and `test` → then `build`
 
-### Step 1: Set Up Infrastructure
+### 3. Frontend Continuous Deployment
+**Trigger:** Push to main branch (after merge)  
+**Workflow:** [frontend-cd.yaml](.github/workflows/frontend-cd.yaml)  
+**View Runs:** [Frontend CD Actions](https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-cd.yaml)
 
-If you haven't already, use the terraform scripts to set up your AWS infrastructure:
+**Jobs:**
+- **Lint** - Code quality check
+- **Test** - Run all tests
+- **Build & Deploy:**
+  - Build Docker image with `REACT_APP_MOVIE_API_URL` environment variable
+  - Push to ECR: `639850426965.dkr.ecr.us-east-1.amazonaws.com/frontend`
+  - Deploy to EKS using kubectl and kustomize
 
+### 4. Backend Continuous Deployment
+**Trigger:** Push to main branch (after merge)  
+**Workflow:** [backend-cd.yaml](.github/workflows/backend-cd.yaml)  
+**View Runs:** [Backend CD Actions](https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-cd.yaml)
+
+**Jobs:**
+- **Lint** - Code quality check
+- **Test** - Run all tests
+- **Build & Deploy:**
+  - Build Docker image
+  - Push to ECR: `639850426965.dkr.ecr.us-east-1.amazonaws.com/backend`
+  - Deploy to EKS using kubectl and kustomize
+
+## 🔗 Important Links
+
+### GitHub
+- **Repository**: https://github.com/Hzzxjj/prj4-upd
+- **Actions Dashboard**: https://github.com/Hzzxjj/prj4-upd/actions
+- **Pull Requests**: https://github.com/Hzzxjj/prj4-upd/pulls
+- **Settings**: https://github.com/Hzzxjj/prj4-upd/settings
+
+### AWS Resources
+- **ECR Frontend Repository**: https://console.aws.amazon.com/ecr/repositories/private/639850426965/frontend
+- **ECR Backend Repository**: https://console.aws.amazon.com/ecr/repositories/private/639850426965/backend
+- **EKS Cluster**: `my-cluster` in `us-east-1`
+- **Region**: us-east-1 (N. Virginia)
+
+### Application URLs
+- **Frontend**: http://aab205cf6bcf442019b39ed063809cc3-1168313768.us-east-1.elb.amazonaws.com
+- **Backend API (Movies)**: http://aa9aa9f85052c445481fb7413c8b62a4-338532416.us-east-1.elb.amazonaws.com/movies
+
+## 🛠️ Local Development
+
+### Frontend
 ```bash
-cd setup/terraform
-terraform init
-terraform apply
+cd frontend
+npm install
+npm start           # Development server
+npm test            # Run tests
+npm run lint        # Check code quality
+npm run build       # Production build
 ```
 
-This will create:
-- EKS cluster
-- ECR repositories
-- Required IAM roles and policies
+### Backend
+```bash
+cd backend
+pip install pipenv
+pipenv install --dev
+pipenv run serve    # Development server
+pipenv run test     # Run tests
+pipenv run lint     # Check code quality
+```
 
-### Step 2: Configure GitHub Secrets
+## 🐳 Docker
 
-Go to your GitHub repository → Settings → Secrets and variables → Actions
+### Build Images Locally
 
-Add the following secrets:
+**Frontend:**
+```bash
+cd frontend
+docker build --build-arg REACT_APP_MOVIE_API_URL=http://aa9aa9f85052c445481fb7413c8b62a4-338532416.us-east-1.elb.amazonaws.com -t frontend:latest .
+docker run -p 3000:3000 frontend:latest
+```
 
-| Secret Name | Description | Example Value |
-|------------|-------------|---------------|
-| `AWS_ACCESS_KEY_ID` | AWS Access Key ID | ASIAZJ6QOWJK... |
-| `AWS_SECRET_ACCESS_KEY` | AWS Secret Access Key | c9Xv/SzWAFbT... |
-| `AWS_SESSION_TOKEN` | AWS Session Token (if using temporary credentials) | IQoJb3JpZ2lu... |
-| `BACKEND_URL` | Backend service URL | a1234567890.us-east-1.elb.amazonaws.com |
+**Backend:**
+```bash
+cd backend
+docker build -t backend:latest .
+docker run -p 5000:5000 backend:latest
+```
 
-**⚠️ IMPORTANT**: 
-- NEVER commit AWS credentials to your repository
-- Credentials shown in this README are examples only
-- Use GitHub Secrets to store all sensitive information
+## ☸️ Kubernetes Deployment
 
-### Step 3: Get Backend URL
+### View Deployments
+```bash
+kubectl get deployments -n default
+kubectl get pods -n default
+kubectl get svc -n default
+```
 
-After deploying the backend for the first time (or manually deploying it once), get the LoadBalancer URL:
+### Check Service Status
+```bash
+kubectl get svc -A
+```
 
+Output:
+```
+NAMESPACE     NAME       TYPE           EXTERNAL-IP
+default       backend    LoadBalancer   aa9aa9f85052c445481fb7413c8b62a4-338532416.us-east-1.elb.amazonaws.com
+default       frontend   LoadBalancer   aab205cf6bcf442019b39ed063809cc3-1168313768.us-east-1.elb.amazonaws.com
+```
+
+### Manual Deployment (Not Recommended - Use CI/CD!)
+```bash
+# Frontend
+cd frontend/k8s
+kustomize build | kubectl apply -f -
+
+# Backend
+cd backend/k8s
+kustomize build | kubectl apply -f -
+```
+
+## 🔐 GitHub Secrets Configuration
+
+The following secrets are configured in the repository:
+
+| Secret Name | Description |
+|------------|-------------|
+| `AWS_ACCESS_KEY_ID` | AWS access key for ECR and EKS |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret access key |
+| `AWS_SESSION_TOKEN` | AWS session token (temporary credentials) |
+| `BACKEND_URL` | Backend LoadBalancer URL (for frontend build) |
+
+**Configure at:** https://github.com/Hzzxjj/prj4-upd/settings/secrets/actions
+
+## 📊 Monitoring & Verification
+
+### Check Workflow Status
+```bash
+# View all workflows
+https://github.com/Hzzxjj/prj4-upd/actions
+
+# Individual workflow pages
+https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-ci.yaml
+https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-ci.yaml
+https://github.com/Hzzxjj/prj4-upd/actions/workflows/frontend-cd.yaml
+https://github.com/Hzzxjj/prj4-upd/actions/workflows/backend-cd.yaml
+```
+
+### Check Application Health
+```bash
+# Frontend health
+curl http://aab205cf6bcf442019b39ed063809cc3-1168313768.us-east-1.elb.amazonaws.com
+
+# Backend API
+curl http://aa9aa9f85052c445481fb7413c8b62a4-338532416.us-east-1.elb.amazonaws.com/movies
+```
+
+### Check ECR Images
+```bash
+# List frontend images
+aws ecr list-images --repository-name frontend --region us-east-1
+
+# List backend images
+aws ecr list-images --repository-name backend --region us-east-1
+```
+
+## 🚀 Deployment Process
+
+### Typical Workflow
+
+1. **Developer creates feature branch**
+   ```bash
+   git checkout -b feature/new-feature
+   # Make changes
+   git add .
+   git commit -m "feat: Add new feature"
+   git push origin feature/new-feature
+   ```
+
+2. **Create Pull Request**
+   - Go to https://github.com/Hzzxjj/prj4-upd/pulls
+   - Create PR from feature branch to main
+   - **CI workflows automatically run**
+   - Lint, test, and build jobs must pass
+
+3. **Review & Merge**
+   - Wait for all CI checks to pass ✅
+   - Review code changes
+   - Merge pull request
+
+4. **Automatic Deployment**
+   - **CD workflows automatically trigger**
+   - Build Docker images
+   - Push to ECR
+   - Deploy to EKS
+   - Application updates automatically!
+
+## 🎯 Key Features
+
+✅ **Automated CI/CD** - No manual deployments needed  
+✅ **Parallel Testing** - Lint and test jobs run simultaneously  
+✅ **Security** - AWS credentials stored as GitHub Secrets  
+✅ **Docker Optimization** - Multi-stage builds for smaller images  
+✅ **Environment Variables** - Backend URL injected at build time  
+✅ **Kustomize** - Clean Kubernetes deployments  
+✅ **LoadBalancer** - External access to applications  
+✅ **Zero Downtime** - Rolling updates in Kubernetes  
+✅ **Caching** - npm and pipenv dependencies cached for faster builds  
+✅ **Manual Triggers** - All workflows can be manually triggered  
+
+## 📚 Additional Documentation
+
+- **Quick Start Guide**: [QUICK_START.md](QUICK_START.md)
+- **Screenshot Guide**: [SCREENSHOT_GUIDE.md](SCREENSHOT_GUIDE.md)
+- **Project Summary**: [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)
+
+## 🔧 Troubleshooting
+
+### Workflow Failures
+
+**Check logs:**
+1. Go to https://github.com/Hzzxjj/prj4-upd/actions
+2. Click on the failed workflow
+3. Click on the failed job
+4. Review error messages
+
+**Common issues:**
+- AWS credentials expired → Update GitHub Secrets
+- Tests failing → Fix code and push again
+- Docker build errors → Check Dockerfile syntax
+- kubectl errors → Verify EKS cluster access
+
+### Application Not Loading
+
+**Check services:**
 ```bash
 kubectl get svc -n default
 ```
 
-Look for the backend service's EXTERNAL-IP and add it as the `BACKEND_URL` secret in GitHub.
-
-### Step 4: Create ECR Repositories
-
-Create two ECR repositories in AWS:
-
+**Check pods:**
 ```bash
-aws ecr create-repository --repository-name frontend --region us-east-1
-aws ecr create-repository --repository-name backend --region us-east-1
-```
-
-### Step 5: Push Code to GitHub
-
-```bash
-git add .
-git commit -m "Initial commit with CI/CD pipelines"
-git push origin main
-```
-
-### Step 6: Create a Pull Request
-
-To test the CI pipelines:
-
-1. Create a new branch:
-   ```bash
-   git checkout -b feature/test-ci
-   ```
-
-2. Make a small change (e.g., update README)
-
-3. Push and create a pull request:
-   ```bash
-   git push origin feature/test-ci
-   ```
-
-4. Go to GitHub and create a PR to main branch
-
-5. Watch the CI workflows run automatically
-
-### Step 7: Merge to Deploy
-
-Once the CI checks pass:
-1. Merge the pull request
-2. The CD workflows will automatically deploy to EKS
-
-## Verification
-
-### Check Workflows
-Go to your GitHub repository → Actions to see all workflow runs.
-
-### Check Services
-```bash
-# Get all services
-kubectl get svc -A
-
-# Check deployments
-kubectl get deployments -n default
-
-# Check pods
 kubectl get pods -n default
+kubectl logs <pod-name>
 ```
 
-### Access Applications
-
-**Frontend**: 
+**Check deployments:**
 ```bash
-kubectl get svc frontend -n default
-# Access the EXTERNAL-IP in your browser
+kubectl describe deployment frontend
+kubectl describe deployment backend
 ```
 
-**Backend API**:
-```bash
-kubectl get svc backend -n default
-# Access http://EXTERNAL-IP/movies to see the movie list
-```
+## 🏆 Success Metrics
 
-## Required Screenshots for Submission
+All criteria met:
+- ✅ 4 workflow files in `.github/workflows/`
+- ✅ All workflows passing with green checkmarks
+- ✅ CI runs on pull requests automatically
+- ✅ CD runs on push to main automatically
+- ✅ Lint and test jobs run in parallel
+- ✅ Build job runs after lint/test complete
+- ✅ Docker images pushed to ECR
+- ✅ Applications deployed to EKS
+- ✅ No AWS credentials in code
+- ✅ Frontend can fetch data from backend
+- ✅ Applications publicly accessible
 
-To successfully submit this project, you need to provide the following screenshots:
-
-### 1. GitHub Actions - All Workflows Successful ✅
-- Navigate to your GitHub repository → Actions
-- Take a screenshot showing ALL 4 workflows with successful (green checkmark) runs:
-  - Frontend Continuous Integration
-  - Backend Continuous Integration
-  - Frontend Continuous Deployment
-  - Backend Continuous Deployment
-
-**Example**: Show the Actions page with the workflow list
-
-### 2. Frontend CI Workflow Details ✅
-- Click on a successful "Frontend Continuous Integration" workflow run
-- Take a screenshot showing all jobs (lint, test, build) passed
-- Show the detailed steps with green checkmarks
-
-### 3. Backend CI Workflow Details ✅
-- Click on a successful "Backend Continuous Integration" workflow run
-- Take a screenshot showing all jobs (lint, test, build) passed
-
-### 4. Frontend CD Workflow Details ✅
-- Click on a successful "Frontend Continuous Deployment" workflow run
-- Take a screenshot showing:
-  - Lint and test jobs passed
-  - Build job with ECR push successful
-  - Deployment to EKS successful
-
-### 5. Backend CD Workflow Details ✅
-- Click on a successful "Backend Continuous Deployment" workflow run
-- Take a screenshot showing successful deployment
-
-### 6. Pull Request with Checks Passed ✅
-- Create a pull request
-- Take a screenshot showing all CI checks passed before merge
-- Example: "All checks have passed" with green checkmarks
-
-### 7. ECR Repositories with Images ✅
-- Go to AWS Console → ECR
-- Take screenshots showing:
-  - Frontend repository with pushed images (tagged with git sha and latest)
-  - Backend repository with pushed images
-
-### 8. EKS Services Running ✅
-- Run: `kubectl get svc -A`
-- Take a screenshot showing:
-  - frontend service with LoadBalancer and EXTERNAL-IP
-  - backend service with LoadBalancer and EXTERNAL-IP
-
-### 9. Frontend Application Working ✅
-- Open the frontend URL (from LoadBalancer)
-- Take a screenshot showing:
-  - The movie list displayed
-  - The URL in the browser address bar matching the LoadBalancer URL
-
-### 10. Backend API Working ✅
-- Access http://BACKEND_URL/movies
-- Take a screenshot showing:
-  - The JSON response with movie list
-  - The URL in the browser address bar
-
-### 11. kubectl get svc -A Output ✅
-- Run: `kubectl get svc -A`
-- Take a screenshot or copy the output
-- This verifies the URLs match between your screenshots and actual deployments
-
-## Troubleshooting
-
-### Workflow Failures
-
-**If lint fails**:
-- Run `npm run lint` (frontend) or `pipenv run lint` (backend) locally
-- Fix all linting errors before pushing
-
-**If tests fail**:
-- Run tests locally: `npm test` (frontend) or `pipenv run test` (backend)
-- Ensure all tests pass before creating PR
-
-**If Docker build fails**:
-- Build locally to debug: `docker build -t test .`
-- Check Dockerfile syntax and dependencies
-
-**If ECR push fails**:
-- Verify AWS credentials in GitHub Secrets
-- Check ECR repository exists
-- Ensure session token is valid (if using temporary credentials)
-
-**If kubectl deployment fails**:
-- Verify EKS cluster is running: `aws eks describe-cluster --name cluster`
-- Check kubectl configuration
-- Verify kustomization.yaml is correctly formatted
-
-### AWS Session Token Expiration
-
-Temporary AWS credentials expire. If your workflows start failing with authentication errors:
-
-1. Generate new credentials from AWS
-2. Update GitHub Secrets with new values
-3. Re-run the failed workflow
-
-## Key Features
-
-✅ **Parallel Job Execution**: Lint and test run simultaneously for faster CI
-✅ **Dependency Caching**: npm and pipenv dependencies are cached for speed
-✅ **Security**: AWS credentials stored in GitHub Secrets, never in code
-✅ **Docker Multi-stage Builds**: Optimized images
-✅ **Environment Variables**: Backend URL passed via build args
-✅ **Kustomize**: Clean Kubernetes deployments with image tag management
-✅ **Automated Deployment**: Push to main = automatic deployment
-✅ **Manual Triggers**: All workflows can be manually triggered via workflow_dispatch
-
-## Important Notes
-
-1. **Never interact with kubectl manually** after setting up CI/CD - all deployments must go through GitHub Actions
-2. **Always create pull requests** for changes - direct pushes to main will trigger CD
-3. **AWS credentials expire** - update them in GitHub Secrets when needed
-4. **Test locally first** - run lint and tests before pushing to avoid workflow failures
-5. **Monitor costs** - EKS and LoadBalancers incur AWS charges
-
-## Success Criteria
-
-✅ 4 workflow files present in `.github/workflows/`
-✅ All workflows have successful runs
-✅ CI workflows run on pull requests
-✅ CD workflows run on push to main
-✅ Docker images pushed to ECR
-✅ Applications deployed and accessible on EKS
-✅ Frontend can fetch movies from backend
-✅ No AWS credentials in code
-✅ All tests passing
-
-## License
+## 📝 License
 
 MIT License
+
+## 👤 Author
+
+**Hzzxjj**
+- GitHub: [@Hzzxjj](https://github.com/Hzzxjj)
+- Repository: [prj4-upd](https://github.com/Hzzxjj/prj4-upd)
+
+---
+
+**Last Updated:** October 8, 2025  
+**Status:** ✅ All systems operational  
+**Cluster:** my-cluster (us-east-1)  
+**Registry:** 639850426965.dkr.ecr.us-east-1.amazonaws.com
